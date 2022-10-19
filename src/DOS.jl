@@ -1,3 +1,8 @@
+"""
+    DOSinfo
+
+Organizes information relevant to the plotting of the density of states.
+"""
 struct DOSinfo
     tdos::DensityOfStates
     pdos::Vector{ProjectedDensityOfStates}
@@ -19,6 +24,7 @@ end
     import_DOS_VASP(directory::AbstractString=="")
 
 Imports information for plotting DOS from the VASP files DOSCAR, POSCAR, and OUTCAR.
+returns dosinfo
 """
 function import_DOS_VASP(directory::AbstractString="")
     tdos, pdos = readDOSCAR(string(directory,"DOSCAR"))
@@ -71,18 +77,6 @@ function energy_at_electron_ct(tdos::DensityOfStates, electron_ct::Real)
     return x
 end
 
-# A struct that can be easily saved to toggle through different pdos plots
-struct pDOS_options
-    ion_type_to_plot::Int
-    ion_orbital_to_plot::Int
-    function pDOS_options(
-        ion_type_to_plot::Int,
-        ion_orbital_to_plot::Int
-    )
-        return new(ion_type_to_plot,ion_orbital_to_plot)
-    end
-end
-
 """
     plot_DOS(dosinfo::DOSinfo, emin::Real=-20, emax::Real=0, xmax::Real=20, backend="GR")
 
@@ -100,24 +94,24 @@ end
 
 
 """
-    plot_pDOS(p, dosinfo::DOSinfo, pdos_options::pDOS_options=pDOS_options(0,0))
+    function plot_pDOS(p, dosinfo::DOSinfo, ion_type_to_plot::Int, ion_orbital_to_plot::Int)
 
 Plots a projected density of states on top of the current density of states plot,
 if the projected density of states information exists.
-pdos_options (specifying which ion and orbital type to plot) must first be defined.
+Specify which ion (order in POSCAR) and orbital type to plot (see DOSCAR on VASP wiki).
 """
-function plot_pDOS(p, dosinfo::DOSinfo, pdos_options::pDOS_options=pDOS_options(0,0))
-    if !(iszero(pdos_options.ion_orbital_to_plot) && isempty(dosinfo.pdos))
+function plot_pDOS(p, dosinfo::DOSinfo, ion_type_to_plot::Int, ion_orbital_to_plot::Int)
+    if !(iszero(ion_orbital_to_plot) && isempty(dosinfo.pdos))
         # Gets index of unique atoms (assuming atoms are sorted by name/number)
         unique_atoms = unique(i -> dosinfo.pos.atoms[i].name, 1:length(dosinfo.pos.atoms))
         pdos_for_plot = zeros(length(dosinfo.pdos[1].dos[1,:]))
         # Determine stopping point for ion type to plot
         # If we pick the last type of atom, we go from that index to the end.
         # Otherwise, we stop at the index of the next type of atom.
-        pdos_options.ion_type_to_plot == length(unique_atoms) ? stop_at = length(dosinfo.pos.atoms) : stop_at = pdos_options.ion_type_to_plot+1
-        for i in unique_atoms[pdos_options.ion_type_to_plot]:stop_at
+        ion_type_to_plot == length(unique_atoms) ? stop_at = length(dosinfo.pos.atoms) : stop_at = ion_type_to_plot+1
+        for i in unique_atoms[ion_type_to_plot]:stop_at
             # Sum the specified type of orbitals of the same type of atom
-            pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[pdos_options.ion_orbital_to_plot,:]
+            pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[ion_orbital_to_plot,:]
         end
         p2 = plot!(p, pdos_for_plot, dosinfo.tdos.energy.+dosinfo.alphabeta, color = :black, fill = (0))
         return p2
