@@ -1,6 +1,6 @@
 module PlotDFT
 
-using Xtal
+using Electrum
 using Plots
 using Plots.PlotMeasures
 
