@@ -8,15 +8,15 @@ struct DOSinfo
     pdos::Vector{ProjectedDensityOfStates}
     fermi::Real
     alphabeta::Real
-    #pos::Crystal{3}
+    pos::Crystal{3}
     function DOSinfo(
         tdos::DensityOfStates,
         pdos::Vector{ProjectedDensityOfStates},
         fermi::Real,
         alphabeta::Real,
-        #pos::Crystal{3}...,
+        pos::Crystal{3},
         )
-        return new(tdos,pdos,fermi,alphabeta)#,pos)
+        return new(tdos,pdos,fermi,alphabeta,pos)
     end
 end
 
@@ -103,12 +103,12 @@ Specify which ion (order in POSCAR) and orbital type to plot (see DOSCAR on VASP
 function plot_pDOS(p, dosinfo::DOSinfo, ion_type_to_plot::Int, ion_orbital_to_plot::Int)
     if !(iszero(ion_orbital_to_plot) && isempty(dosinfo.pdos))
         # Gets index of unique atoms (assuming atoms are sorted by name/number)
-        unique_atoms = unique(i -> dosinfo.pos.atoms[i].name, 1:length(dosinfo.pos.atoms))
+        unique_atoms = unique(i -> dosinfo.pos.atoms[i].atom.name, eachindex(dosinfo.pos.atoms.atoms))
         pdos_for_plot = zeros(length(dosinfo.pdos[1].dos[1,:]))
         # Determine stopping point for ion type to plot
         # If we pick the last type of atom, we go from that index to the end.
         # Otherwise, we stop at the index of the next type of atom.
-        ion_type_to_plot == length(unique_atoms) ? stop_at = length(dosinfo.pos.atoms) : stop_at = ion_type_to_plot+1
+        ion_type_to_plot == length(unique_atoms) ? stop_at = length(dosinfo.pos.atoms) : stop_at = unique_atoms[ion_type_to_plot+1]-1
         for i in unique_atoms[ion_type_to_plot]:stop_at
             # Sum the specified type of orbitals of the same type of atom
             pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[ion_orbital_to_plot,:]
