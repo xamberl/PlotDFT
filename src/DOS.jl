@@ -1,26 +1,4 @@
 """
-    DOSinfo
-
-Organizes information relevant to the plotting of the density of states.
-"""
-struct DOSinfo
-    tdos::DensityOfStates
-    pdos::Vector{ProjectedDensityOfStates}
-    fermi::Real
-    alphabeta::Real
-    pos::Crystal{3}
-    function DOSinfo(
-        tdos::DensityOfStates,
-        pdos::Vector{ProjectedDensityOfStates},
-        fermi::Real,
-        alphabeta::Real,
-        pos::Crystal{3},
-        )
-        return new(tdos,pdos,fermi,alphabeta,pos)
-    end
-end
-
-"""
     import_DOS_VASP(directory::AbstractString=="")
 
 Imports information for plotting DOS from the VASP files DOSCAR, POSCAR, and OUTCAR.
@@ -77,23 +55,65 @@ function energy_at_electron_ct(tdos::DensityOfStates, electron_ct::Real)
     return x
 end
 
-"""
-    plot_DOS(dosinfo::DOSinfo, emin::Real=-20, emax::Real=0, xmax::Real=20, backend="GR")
+#=="""
+    plot_DOS(dosinfo::DOSinfo, emin::Real=-20, emax::Real=0, xmax::Real=0, backend="GR")
 
 Plots the total density of states and returns it as a plot object.
 """
-function plot_DOS(dosinfo::DOSinfo, emin::Real=-20, emax::Real=0, xmax::Real=20, backend="GR")
+function plot_DOS(dosinfo::DOSinfo, emin::Real=-20, emax::Real=0, xmax::Real=0, backend="GR")
     # Plot total DOS
     backend == "PlotlyJS" ? plotlyjs() : gr()
     p = plot(dosinfo.tdos.dos, dosinfo.tdos.energy.+dosinfo.alphabeta, color = :black)
     hline!([dosinfo.tdos.fermi+dosinfo.alphabeta], linestyle = :dash, color = :black)
     # If plotting pDOS
+    xmax == 0 ? xmax = maximum(dosinfo.tdos.dos)*1.1 : nothing
     adjust_plot(p,emin,emax,xmax)
     return p
+end==#
+
+function plot_DOS(dosinfo::DOSinfo, emin::Real=-20, emax::Real=0, xmax::Real=0)
+    xmax == 0 ? xmax = maximum(dosinfo.tdos.dos)*1.1 : nothing
+    p = plot([
+        # tdos
+        scatter(x = dosinfo.tdos.dos, y = dosinfo.tdos.energy.+dosinfo.alphabeta, marker_color=:black, mode="lines"),
+        # fermi
+        scatter(x = [0, xmax], y = [dosinfo.fermi+dosinfo.alphabeta, dosinfo.fermi+dosinfo.alphabeta], line_dash="dash", marker_color=:black,mode="lines")
+        ],
+        dos_layout(emin, emax, xmax)
+    )
 end
 
 
-"""
+function dos_layout(emin::Real, emax::Real, xmax::Real)
+doslayout = Layout(
+    plot_bgcolor = :white,
+    font_family = "Arial",
+    font_color = :black,
+    font_size = 14,
+    width = 400,
+    height = 800,
+    showgrid = false,
+    xaxis = attr(
+        range = [0, xmax],
+        showline = true,
+        mirror = true,
+        linecolor = :black,
+        linewidth = 2,
+        ticks = "outside",
+        layer = "below traces",
+    ),
+    yaxis = attr(
+        range = [emin, emax],
+        showline = true,
+        mirror = true,
+        linecolor = :black,
+        linewidth = 2,
+        ticks = "outside",
+        layer = "below traces"
+    )
+    )
+end
+#=="""
     function plot_pDOS(p, dosinfo::DOSinfo, ion_type_to_plot::Int, ion_orbital_to_plot::Int)
 
 Plots a projected density of states on top of the current density of states plot,
@@ -103,7 +123,7 @@ Specify which ion (order in POSCAR) and orbital type to plot (see DOSCAR on VASP
 function plot_pDOS(p, dosinfo::DOSinfo, ion_type_to_plot::Int, ion_orbital_to_plot::Int)
     if !(iszero(ion_orbital_to_plot) && isempty(dosinfo.pdos))
         # Gets index of unique atoms (assuming atoms are sorted by name/number)
-        unique_atoms = unique(i -> dosinfo.pos.atoms[i].atom.name, eachindex(dosinfo.pos.atoms.atoms))
+        unique_atoms = unique(i -> dosinfo.pos.atoms[i].atom.name, eachindex(dosinfo.pos.atoms))
         pdos_for_plot = zeros(length(dosinfo.pdos[1].dos[1,:]))
         # Determine stopping point for ion type to plot
         # If we pick the last type of atom, we go from that index to the end.
@@ -155,9 +175,7 @@ function adjust_plot(p, emin::Real, emax::Real, xmax::Real)
     size = (400,800),
     legend = false,
     grid = false,
-    #fontfamily = "Helvetica",
     ytickfontsize = 12,
-    xaxis = nothing,
     framestyle = :box,
     margin = 20px,
     )
@@ -175,4 +193,4 @@ function Ha_to_THz(pdos::Vector{ProjectedDensityOfStates})
         new_pdos[i] = ProjectedDensityOfStates(pdos[i].fermi, thz, pdos[i].dos)
     end
     return new_pdos
-end
+end==#
