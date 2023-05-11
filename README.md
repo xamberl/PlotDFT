@@ -1,5 +1,9 @@
 # PlotDFT
-Plotting basic DFT data with Julia. Relies on Xtal.jl (https://github.com/brainandforce/Electrum.jl) for reading inputs and uses the Plots.jl package.
+Plotting basic DFT data with Julia. 
+
+# Dependencies
+* Electrum (https://github.com/brainandforce/Electrum.jl) for reading DFT data
+* PlotlyJS for plotting
 
 # Current features
 * Plot total DOS from VASP.
