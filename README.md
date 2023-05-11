@@ -1,11 +1,11 @@
 # PlotDFT
-Plotting basic DFT data with Julia. Relies on Xtal.jl (https://github.com/brainandforce/Xtal.jl) for reading inputs and uses the Plots.jl package.
-Echoes implementation of features written for Pluto notebooks (https://github.com/xamberl/pluto-plotting), such that plots can be generated in the Julia REPL or in a code editor such as VS Code.
+Plotting basic DFT data with Julia. Relies on Xtal.jl (https://github.com/brainandforce/Electrum.jl) for reading inputs and uses the Plots.jl package.
 
 # Current features
-* Plot total and projected DOS from VASP.
+* Plot total DOS from VASP.
 
 # Planned features
-* Plot spin-polarized DOS.
+* Plot projected, spin-polarized DOS.
 * Plot band structures.
 * Plot -pCOHP curves from LOBSTER.
+* Plot phonon DOS and band structures.
