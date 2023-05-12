@@ -61,30 +61,58 @@ end
 
 Plots the total density of states.
 """
-function plot_DOS(dosinfo::DOSinfo; emin::Real=0, emax::Real=0, xmax::Real=0)
+function plot_DOS(dosinfo::DOSinfo; emin::Real=0, emax::Real=0, xmax::Real=0, eaxis::String="relative")
+    # Check to see if plotting in relative (default) or absolute mode. Shift eaxis by δ.
+    lowercase(eaxis) == "absolute" ? δ = dosinfo.alphabeta : δ = -dosinfo.fermi
+    
     # Automatically sizes xmax to 1.1 of the maximum peak in the DOS
     # and the energy range from the minimum to 1 eV + the Fermi energy
     # if neither is specified
     xmax == 0 ? xmax = maximum(dosinfo.tdos.dos)*1.1 : nothing
     if (emin == 0 && emax == 0) 
-        emin = minimum(dosinfo.tdos.energy.+dosinfo.alphabeta)
-        emax = dosinfo.fermi+dosinfo.alphabeta+1
+        emin = minimum(dosinfo.tdos.energy.+δ)
+        emax = dosinfo.fermi+δ+1
     end
     p = plot([
         # tdos
-        scatter(x = dosinfo.tdos.dos, y = dosinfo.tdos.energy.+dosinfo.alphabeta, marker_color=:black, mode="lines"),
+        scatter(x = dosinfo.tdos.dos, y = dosinfo.tdos.energy.+δ, marker_color=:black, mode="lines"),
         # fermi
-        scatter(x = [0, xmax], y = [dosinfo.fermi+dosinfo.alphabeta, dosinfo.fermi+dosinfo.alphabeta], line_dash="dash", marker_color=:black,mode="lines")
+        scatter(x = [0, xmax], y = [dosinfo.fermi+δ, dosinfo.fermi+δ], line_dash="dash", marker_color=:black, mode="lines")
         ],
         dos_layout(emin, emax, xmax)
     )
+end
+
+"""
+plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Int; color = :black)
+
+Plots the projected density of states.
+"""
+function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Int, color::String="black")
+    isempty(dosinfo.pdos) ? error("No PDOS found. Check your DOS files.") : nothing
+    p = copy(plot)
+    # Check to see if it is relative or absolute plotting based on fermi energy line in plot
+    get(p.plot.data[2].fields, :y, nothing)[1] == 0 ? z = -dosinfo.fermi : z = dosinfo.alphabeta
+    # Sum pdos for selected atom
+    pdos_for_plot = zeros(length(dosinfo.pdos[1].dos[1,:]))
+    # Determine stopping point for ion type to plot
+    # If we pick the last type of atom, we go from that index to the end.
+    # Otherwise, we stop at the index of the next type of atom.
+    unique_atoms = unique(i -> dosinfo.pos.atoms[i].atom.name, eachindex(dosinfo.pos.atoms))
+    atom == length(unique_atoms) ? stop_at = length(dosinfo.pos.atoms) : stop_at = unique_atoms[atom+1]-1
+    for i in unique_atoms[atom]:stop_at
+        # Sum the specified type of orbitals of the same type of atom
+        pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[pdos,:]
+    end
+    addtraces!(p.plot, scatter(x = pdos_for_plot, y = dosinfo.tdos.energy.+z, marker_color = color, fill="tozerox"))
+    return p
 end
 
 
 """
     dos_layout(emin::Real, emax::Real, xmax::Real)
 
-Returns a Plotly layout object with default settings and ranges specified by emin/emax/xmax.
+Returns a PlotlyJS layout object with default settings and ranges specified by emin/emax/xmax.
 """
 function dos_layout(emin::Real, emax::Real, xmax::Real)
 doslayout = Layout(
