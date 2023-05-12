@@ -38,4 +38,4 @@ p2
 # Choose from:
 # .pdf, .html, .json, .png, .svg, .jpeg, .webp!
 
-# PlotDFT.savefig(p2, "ScAl3_Sc_d_pdos.html")
+# PlotDFT.savefig(p2, width=400, height=800, "ScAl3_Sc_d_pdos.svg")
