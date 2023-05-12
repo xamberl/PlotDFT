@@ -34,11 +34,12 @@ function num_electrons_at_energy(tdos::DensityOfStates, energy::Real)
 end
 
 """
-    energy_at_electron_ct(tdos::DensityOfStates, electron_ct::Real)
+    energy_at_electron_ct(dosinfo::DOSinfo, electron_ct::Real)
 
 Returns the energy of corresponding electron count using the total DOS.
 """
-function energy_at_electron_ct(tdos::DensityOfStates, electron_ct::Real)
+function energy_at_electron_ct(dosinfo::DOSinfo, electron_ct::Real)
+    tdos = dosinfo.tdos
     # Checks to see if we are in the electron count range
     if electron_ct < tdos.int[1] || electron_ct > tdos.int[length(tdos.int)]
         @error "Electron count invalid"
@@ -53,6 +54,24 @@ function energy_at_electron_ct(tdos::DensityOfStates, electron_ct::Real)
     b = tdos.int[i]-m*tdos.energy[i]
     x = (electron_ct - b)/m
     return x
+end
+
+"""
+    energy_at_electron_ct(tdos::DensityOfStates, electron_ct::Real)
+
+Returns the energy of corresponding electron count using the total DOS.
+"""
+function energy_at_electron_ct(dosinfo::DOSinfo, electron_ct::Real, plot::PlotlyJS.SyncPlot; color::String="red")
+    tdos = dosinfo.tdos
+    p = copy(plot)
+    x = energy_at_electron_ct(dosinfo, electron_ct)
+
+    # Check to see if it is relative or absolute plotting based on fermi energy line in plot
+    get(p.plot.data[2].fields, :y, nothing)[1] == 0 ? z = -dosinfo.fermi : z = dosinfo.alphabeta
+    # Get xmax
+    xmax = get(p.plot.data[2].fields, :x, nothing)[2]
+    addtraces!(p, scatter(x = [0, xmax], y = [x+z, x+z], line_dash="dash", marker_color= color, mode="lines"))
+    return p
 end
 
 
