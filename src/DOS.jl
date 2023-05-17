@@ -1,8 +1,8 @@
 """
-    import_DOS_VASP(directory::AbstractString=="")
+    import_DOS_VASP(directory::AbstractString=="") -> DOSinfo
 
-Imports information for plotting DOS from the VASP files DOSCAR, POSCAR, and OUTCAR.
-returns dosinfo
+Imports information for plotting DOS from the VASP files DOSCAR, POSCAR, and OUTCAR and
+returns it as a DOSinfo object.
 """
 function import_DOS_VASP(directory::AbstractString="")
     tdos, pdos = readDOSCAR(string(directory,"DOSCAR"))
@@ -34,7 +34,7 @@ function num_electrons_at_energy(tdos::DensityOfStates, energy::Real)
 end
 
 """
-    energy_at_electron_ct(dosinfo::DOSinfo, electron_ct::Real)
+    energy_at_electron_ct(dosinfo::DOSinfo, electron_ct::Real) -> Float64
 
 Returns the energy of corresponding electron count using the total DOS.
 """
@@ -57,9 +57,16 @@ function energy_at_electron_ct(dosinfo::DOSinfo, electron_ct::Real)
 end
 
 """
-    energy_at_electron_ct(tdos::DensityOfStates, electron_ct::Real)
+    function energy_at_electron_ct(
+        dosinfo::DOSinfo,
+        electron_ct::Real,
+        plot::PlotlyJS.SyncPlot;
+        color::String="red"
+    )
+    -> PlotlyJS.SyncPlot
 
-Returns the energy of corresponding electron count using the total DOS.
+Adds a horizontal dotted line to a plot corresponding to the energy at a
+specified electron count.
 """
 function energy_at_electron_ct(dosinfo::DOSinfo, electron_ct::Real, plot::PlotlyJS.SyncPlot; color::String="red")
     tdos = dosinfo.tdos
@@ -76,9 +83,16 @@ end
 
 
 """
-    plot_DOS(dosinfo::DOSinfo, emin::Real=-0, emax::Real=0, xmax::Real=0)
+plot_DOS(
+        dosinfo::DOSinfo;
+        emin::Real=0,
+        emax::Real=0,
+        xmax::Real=0,
+        eaxis::String="relative"
+    )
+    -> PlotlyJS.SyncPlot
 
-Plots the total density of states.
+Returns a plot of the total density of states.
 """
 function plot_DOS(dosinfo::DOSinfo; emin::Real=0, emax::Real=0, xmax::Real=0, eaxis::String="relative")
     # Check to see if plotting in relative (default) or absolute mode. Shift eaxis by δ.
@@ -103,9 +117,16 @@ function plot_DOS(dosinfo::DOSinfo; emin::Real=0, emax::Real=0, xmax::Real=0, ea
 end
 
 """
-plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Int; color = :black)
+    plot_pDOS(
+        plot::PlotlyJS.SyncPlot,
+        dosinfo::DOSinfo;
+        atom::Int,
+        pdos::Int;
+        color = :black
+    )
+    -> PlotlyJS.SyncPlot
 
-Plots the projected density of states.
+Adds a filled projected density of states to a given plot.
 """
 function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Int, color::String="black")
     isempty(dosinfo.pdos) ? error("No PDOS found. Check your DOS files.") : nothing
@@ -131,7 +152,8 @@ end
 """
     dos_layout(emin::Real, emax::Real, xmax::Real)
 
-Returns a PlotlyJS layout object with default settings and ranges specified by emin/emax/xmax.
+Returns a PlotlyJS layout object with default settings and ranges specified by
+emin/emax/xmax.
 """
 function dos_layout(emin::Real, emax::Real, xmax::Real)
 doslayout = Layout(
