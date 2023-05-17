@@ -1,0 +1,8 @@
+name = "PlotDFT"
+uuid = "58f05c68-d212-4b50-87a4-5a214a1145cd"
+authors = ["Amber Lim <xalim@wisc.edu>"]
+version = "0.1.0"
+
+[deps]
+Electrum = "b7bf5f09-dce4-461b-b741-5180c76f4cfe"
+PlotlyJS = "f0f68f2c-4968-5e81-91da-67840de0976a"

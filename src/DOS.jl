@@ -57,7 +57,7 @@ function energy_at_electron_ct(dosinfo::DOSinfo, electron_ct::Real)
 end
 
 """
-    function energy_at_electron_ct(
+    energy_at_electron_ct(
         dosinfo::DOSinfo,
         electron_ct::Real,
         plot::PlotlyJS.SyncPlot;
