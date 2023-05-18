@@ -1,3 +1,3 @@
 using Pkg
-Pkg.Registry.add("General")
-Pkg.Registry.add("https://github.com/brainandforce/Electrum.jl/")
+Pkg.add("General")
+Pkg.add("https://github.com/brainandforce/Electrum.jl/")
