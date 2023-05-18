@@ -1,3 +1,8 @@
+name = "PlotDFT"
+uuid = "58f05c68-d212-4b50-87a4-5a214a1145cd"
+authors = ["Amber Lim <xalim@wisc.edu>"]
+version = "0.1.0"
+
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
