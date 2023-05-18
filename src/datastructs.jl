@@ -1,7 +1,15 @@
 """
-    DOSinfo
+    DOSinfo(
+        tdos::DensityOfStates,
+        pdos::Vector{ProjectedDensityOfStates},
+        fermi::Real,
+        alphabeta::Real,
+        pos::PeriodicAtomList{3},
+        )
 
 Organizes information relevant to the plotting of the electronic density of states.
+    See Electrum.jl's documentation for information about DensityOfStates,
+    ProjectedDensityOfStates, and PeriodicAtomList.
 """
 struct DOSinfo
     tdos::DensityOfStates

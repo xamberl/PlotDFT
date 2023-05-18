@@ -83,7 +83,7 @@ end
 
 
 """
-plot_DOS(
+    plot_DOS(
         dosinfo::DOSinfo;
         emin::Real=0,
         emax::Real=0,
@@ -108,9 +108,9 @@ function plot_DOS(dosinfo::DOSinfo; emin::Real=0, emax::Real=0, xmax::Real=0, ea
     end
     p = plot([
         # tdos
-        scatter(x = dosinfo.tdos.dos, y = dosinfo.tdos.energy.+δ, marker_color=:black, mode="lines"),
+        scatter(x = dosinfo.tdos.dos, y = dosinfo.tdos.energy.+δ, marker_color=:black, mode="lines", name="Total DOS"),
         # fermi
-        scatter(x = [0, xmax], y = [dosinfo.fermi+δ, dosinfo.fermi+δ], line_dash="dash", marker_color=:black, mode="lines")
+        scatter(x = [0, xmax], y = [dosinfo.fermi+δ, dosinfo.fermi+δ], line_dash="dash", marker_color=:black, mode="lines", showlegend=false)
         ],
         dos_layout(emin, emax, xmax)
     )
@@ -119,9 +119,9 @@ end
 """
     plot_pDOS(
         plot::PlotlyJS.SyncPlot,
-        dosinfo::DOSinfo;
+        dosinfo::DOSinfo,
         atom::Int,
-        pdos::Int;
+        pdos::Int,
         color = :black
     )
     -> PlotlyJS.SyncPlot
@@ -144,7 +144,24 @@ function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::I
         # Sum the specified type of orbitals of the same type of atom
         pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[pdos,:]
     end
-    addtraces!(p.plot, scatter(x = pdos_for_plot, y = dosinfo.tdos.energy.+z, marker_color = color, fill="tozerox"))
+    if size(dosinfo.pdos[1].dos)[1] == 3
+        decomp = ["s", "p", "d"]
+        x = decomp[pdos]
+    elseif size(dosinfo.pdos[1].dos)[1] == 9
+        decomp = ["s",
+            "p<sub>y</sub>",
+            "p<sub>z</sub>",
+            "p<sub>x</sub>",
+            "d<sub>xy</sub>",
+            "d<sub>yz</sub>",
+            "d<sub>z<sup>2<sup></sub>",
+            "d<sub>xz</sub>",
+            "d<sub>x<sup>2<sup>-y<sup>2<sup></sub>",
+        ]
+        x = decomp[pdos]
+    end
+    pdosname = string(dosinfo.pos.atoms[1].atom.name, " ", x)
+    addtraces!(p.plot, scatter(x = pdos_for_plot, y = dosinfo.tdos.energy.+z, marker_color = color, fill="tozerox", name=pdosname))
     return p
 end
 
