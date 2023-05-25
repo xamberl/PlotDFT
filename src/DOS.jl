@@ -128,7 +128,7 @@ end
 
 Adds a filled projected density of states to a given plot.
 """
-function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Vector, color::String="black")
+function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Union{Vector,Int}, color::String="black")
     isempty(dosinfo.pdos) ? error("No PDOS found. Check your DOS files.") : nothing
     p = copy(plot)
     # Check to see if it is relative or absolute plotting based on fermi energy line in plot
@@ -175,10 +175,6 @@ function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::V
     pdosname = string(dosinfo.pos.atoms[1].atom.name, " ", x)
     addtraces!(p.plot, scatter(x = pdos_for_plot, y = dosinfo.tdos.energy.+z, marker_color = color, fill="tozerox", name=pdosname))
     return p
-end
-
-function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Int, color::String="black")
-    plot_pDOS(plot, dosinfo; atom, [pdos], color)
 end
 
 """
