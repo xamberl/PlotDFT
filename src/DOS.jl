@@ -156,6 +156,7 @@ function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::U
             pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[j,:]
         end
     end
+    x = "undefined"
     if size(dosinfo.pdos[1].dos)[1] == 3
         decomp = ["s", "p", "d"]
         x = decomp[pdos]
