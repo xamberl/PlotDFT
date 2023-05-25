@@ -121,14 +121,14 @@ end
         plot::PlotlyJS.SyncPlot,
         dosinfo::DOSinfo,
         atom::Int,
-        pdos::Int,
+        pdos::Vector{Int},
         color = :black
     )
     -> PlotlyJS.SyncPlot
 
 Adds a filled projected density of states to a given plot.
 """
-function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Int, color::String="black")
+function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Vector, color::String="black")
     isempty(dosinfo.pdos) ? error("No PDOS found. Check your DOS files.") : nothing
     p = copy(plot)
     # Check to see if it is relative or absolute plotting based on fermi energy line in plot
@@ -141,8 +141,20 @@ function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::I
     unique_atoms = unique(i -> dosinfo.pos.atoms[i].atom.name, eachindex(dosinfo.pos.atoms))
     atom == length(unique_atoms) ? stop_at = length(dosinfo.pos.atoms) : stop_at = unique_atoms[atom+1]-1
     for i in unique_atoms[atom]:stop_at
-        # Sum the specified type of orbitals of the same type of atom
-        pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[pdos,:]
+        # Check pdos for multiple types. E.g. [1, 3:5] must be [1, 3, 4, 5]
+        pdos_new = Vector{Int}(undef,0)
+        for j in pdos
+            if typeof(j) == UnitRange{Int}
+                pdos_new = vcat(pdos_new,collect(j))
+            elseif typeof(j) == Int
+                pdos_new = vcat(pdos_new,j)
+            end
+        end
+        pdos = pdos_new
+        for j in pdos
+            # Sum the specified type of orbitals of the same type of atom
+            pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[j,:]
+        end
     end
     if size(dosinfo.pdos[1].dos)[1] == 3
         decomp = ["s", "p", "d"]
@@ -165,6 +177,9 @@ function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::I
     return p
 end
 
+function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Int, color::String="black")
+    plot_pDOS(plot, dosinfo; atom, [pdos], color)
+end
 
 """
     dos_layout(emin::Real, emax::Real, xmax::Real)
