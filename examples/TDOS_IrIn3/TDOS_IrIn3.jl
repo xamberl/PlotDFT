@@ -1,5 +1,5 @@
 # include path to PlotDFT.jl
-include("../../src/PlotDFT.jl")
+using PlotDFT
 
 # Import DOS
 dos = PlotDFT.import_DOS_VASP()
@@ -29,7 +29,7 @@ p2
 # Plot the energy level at a hypothetical electron count
 # This system has 72 valence electrons or 18 electrons per Ir atom
 # Let's plot the energy at 68 valence electrons or 17 electrons per Ir atom
-p3 = PlotDFT.energy_at_electron_ct(dos, 68, p1)
+p3 = PlotDFT.energy_at_electron_ct(dos, 68, p2)
 
 # Save figures. (uncomment to use)
 # Choose from:

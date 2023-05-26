@@ -157,7 +157,6 @@ function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::S
         # Check pdos for multiple types. E.g. [1, 3:5] must be [1, 3, 4, 5]
         pdos_new = Vector{Int}(undef,0)
         # Check to see if pdos is a valid option
-        @info pdos
         (pdos_range, label) = translate_pdos(i, pdos, dosinfo)
         for j in pdos_range
             if typeof(j) == UnitRange{Int}

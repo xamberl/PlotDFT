@@ -1,11 +1,11 @@
 # include path to PlotDFT.jl
-include("../../src/PlotDFT.jl")
+using PlotDFT
 
 # Import DOS
-dos = PlotDFT.import_DOS_VASP()
+dos = import_DOS_VASP()
 
 # Plot total DOS in absolute units of eV
-p1 = PlotDFT.plot_DOS(dos, eaxis="absolute")
+p1 = plot_DOS(dos, eaxis="absolute")
 
 # Display what DOS info is available for plotting
 dos
@@ -17,7 +17,7 @@ dos
 #  Fermi energy: 7.2264, α+β: -14.5222
 
 # Plot the Sc d projected DOS on our TDOS.
-p2 = PlotDFT.plot_pDOS(p1, dos; atom=1, pdos=3, color="#FF0000")
+p2 = PlotDFT.plot_pDOS(p1, dos; atom=1, pdos="d", color="#FF0000")
 
 
 # Adjust plot formatting! Change title, title positioning, color, etc.
