@@ -12,6 +12,18 @@ function import_DOS_VASP(directory::AbstractString="")
 end
 
 """
+    import_DOS_lobster(directory::AbstractString=="") -> DOSinfo
+
+Imports information for plotting DOS from DOSCAR.lobster and POSCAR
+"""
+function import_DOS_lobster(directory::AbstractString="")
+    tdos, pdos = readDOSCAR(string(directory,"DOSCAR.lobster"))
+    (fermi, alphabeta) = (0,0)
+    pos = readPOSCAR(string(directory,"POSCAR"))
+    return DOSinfo(tdos, pdos, fermi, alphabeta, pos)
+end
+
+"""
     num_electrons_at_energy(tdos::DensityOfStates, energy::Real) -> Float64
 
 Returns the electron count of the unit cell at a specified energy using the total DOS.
@@ -128,13 +140,14 @@ end
 
 Adds a filled projected density of states to a given plot.
 """
-function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::Union{Vector,Int}, color::String="black")
+function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::String, color::String="black")
     isempty(dosinfo.pdos) ? error("No PDOS found. Check your DOS files.") : nothing
     p = copy(plot)
     # Check to see if it is relative or absolute plotting based on fermi energy line in plot
     get(p.plot.data[2].fields, :y, nothing)[1] == 0 ? z = -dosinfo.fermi : z = dosinfo.alphabeta
     # Sum pdos for selected atom
     pdos_for_plot = zeros(length(dosinfo.pdos[1].dos[1,:]))
+    label = ""
     # Determine stopping point for ion type to plot
     # If we pick the last type of atom, we go from that index to the end.
     # Otherwise, we stop at the index of the next type of atom.
@@ -143,37 +156,23 @@ function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::U
     for i in unique_atoms[atom]:stop_at
         # Check pdos for multiple types. E.g. [1, 3:5] must be [1, 3, 4, 5]
         pdos_new = Vector{Int}(undef,0)
-        for j in pdos
+        # Check to see if pdos is a valid option
+        @info pdos
+        (pdos_range, label) = translate_pdos(i, pdos, dosinfo)
+        for j in pdos_range
             if typeof(j) == UnitRange{Int}
                 pdos_new = vcat(pdos_new,collect(j))
             elseif typeof(j) == Int
                 pdos_new = vcat(pdos_new,j)
             end
         end
-        pdos = pdos_new
-        for j in pdos
+        pdos_new
+        for j in pdos_new
             # Sum the specified type of orbitals of the same type of atom
             pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[j,:]
         end
     end
-    x = "undefined"
-    if size(dosinfo.pdos[1].dos)[1] == 3
-        decomp = ["s", "p", "d"]
-        x = decomp[pdos]
-    elseif size(dosinfo.pdos[1].dos)[1] == 9
-        decomp = ["s",
-            "p<sub>y</sub>",
-            "p<sub>z</sub>",
-            "p<sub>x</sub>",
-            "d<sub>xy</sub>",
-            "d<sub>yz</sub>",
-            "d<sub>z<sup>2<sup></sub>",
-            "d<sub>xz</sub>",
-            "d<sub>x<sup>2<sup>-y<sup>2<sup></sub>",
-        ]
-        x = decomp[pdos]
-    end
-    pdosname = string(dosinfo.pos.atoms[1].atom.name, " ", x)
+    pdosname = string(dosinfo.pos.atoms[1].atom.name, " ", label)
     addtraces!(p.plot, scatter(x = pdos_for_plot, y = dosinfo.tdos.energy.+z, marker_color = color, fill="tozerox", name=pdosname))
     return p
 end
@@ -213,4 +212,60 @@ doslayout = Layout(
         layer = "below traces"
     )
     )
+end
+
+"""
+    function translate_pdos(s::AbstractString, dosinfo::DOSinfo) -> (x, label)
+
+For a specified string, returns a vector of Ints corresponding to the column number of the
+desired PDOS to plot. Also returns a label for the legend.
+"""
+function translate_pdos(atom::Int, s::AbstractString, dosinfo::DOSinfo)
+    s = lowercase(s)
+    x = 0
+    label = ""
+    if size(dosinfo.pdos[atom].dos)[1] == 3
+        decomp = Dict("s"=>[1], "p"=>[2], "d"=>[3])
+        x = get(decomp, s, 0)
+        label = s
+    elseif size(dosinfo.pdos[atom].dos)[1] == 4
+        decomp = Dict(
+            "s"=>([1], "s"),
+            "py"=>([2], "p<sub>y</sub>"),
+            "pz"=>([3], "p<sub>z</sub>",),
+            "px"=>([4], "p<sub>x</sub>"),
+            "p"=>(collect(2:4), "p"),
+        )
+        (x, label) = get(decomp, s, (0,""))
+    elseif size(dosinfo.pdos[atom].dos)[1] == 6
+        decomp = Dict(
+            "s"=>([1], "s"),
+            "dxy"=>([2],"d<sub>xy</sub>"),
+            "dyz"=>([3],"d<sub>yz</sub>"),
+            "dz2"=>([4],"d<sub>z<sup>2<sup></sub>"),
+            "dxz"=>([5],"d<sub>xz</sub>"),
+            "dx2-y2"=>([6],"d<sub>x<sup>2<sup>-y<sup>2<sup></sub>"),
+            "dx2y2"=>([6],"d<sub>x<sup>2<sup>-y<sup>2<sup></sub>"),
+            "d"=>(collect(2:6), "d"),
+        )
+        (x, label) = get(decomp, s, (0,""))
+    elseif size(dosinfo.pdos[atom].dos)[1] == 9
+        decomp = Dict(
+            "s"=>([1], "s"),
+            "py"=>([2], "p<sub>y</sub>"),
+            "pz"=>([3], "p<sub>z</sub>",),
+            "px"=>([4], "p<sub>x</sub>"),
+            "p"=>(collect(2:4), "p"),
+            "dxy"=>([5],"d<sub>xy</sub>"),
+            "dyz"=>([6],"d<sub>yz</sub>"),
+            "dz2"=>([7],"d<sub>z<sup>2<sup></sub>"),
+            "dxz"=>([8],"d<sub>xz</sub>"),
+            "dx2-y2"=>([9],"d<sub>x<sup>2<sup>-y<sup>2<sup></sub>"),
+            "dx2y2"=>([9],"d<sub>x<sup>2<sup>-y<sup>2<sup></sub>"),
+            "d"=>(collect(5:9), "d"),
+        )
+        (x, label) = get(decomp, s, (0,""))
+    end
+    x == 0 ? error(string(s, " is not a valid option.")) : nothing
+    return (x, label)
 end
