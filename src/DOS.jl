@@ -131,11 +131,10 @@ end
 """
     plot_pDOS(
         plot::PlotlyJS.SyncPlot,
-        dosinfo::DOSinfo,
+        dosinfo::DOSinfo;
         atom::Int,
-        pdos::Vector{Int},
-        color = :black
-    )
+        pdos::String,
+        color::String="black")
     -> PlotlyJS.SyncPlot
 
 Adds a filled projected density of states to a given plot.

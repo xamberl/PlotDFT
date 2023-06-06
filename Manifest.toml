@@ -136,11 +136,9 @@ version = "1.6.0"
 
 [[deps.Electrum]]
 deps = ["ComputedFieldTypes", "FFTW", "LinearAlgebra", "NormalForms", "Printf", "StaticArrays"]
-git-tree-sha1 = "7094b09bf7299fd35a0c96171650dc5201d62f2c"
-repo-rev = "main"
-repo-url = "https://github.com/brainandforce/Electrum.jl/"
+git-tree-sha1 = "24532ef39ef57dd91e72464e5d7319d014e90334"
 uuid = "b7bf5f09-dce4-461b-b741-5180c76f4cfe"
-version = "0.1.0-dev"
+version = "0.1.0"
 
 [[deps.FFTW]]
 deps = ["AbstractFFTs", "FFTW_jll", "LinearAlgebra", "MKL_jll", "Preferences", "Reexport"]
