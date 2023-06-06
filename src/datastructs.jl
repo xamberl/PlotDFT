@@ -31,8 +31,8 @@ end
 function Base.show(io::IO, ::MIME"text/plain", d::DOSinfo)
     println(io, typeof(d), ": ", Electrum.formula_string(d.pos))
     unique_atoms = unique(i -> d.pos.atoms[i].atom.name, eachindex(d.pos.atoms))
-    for n = eachindex(unique_atoms)
-        println(io, " Atom type ", n, ": ", d.pos[n].atom.name)
+    for n in eachindex(unique_atoms)
+        println(io, " Atom type ", n, ": ", d.pos[unique_atoms[n]].atom.name)
     end
     if isempty(d.pdos)
         p = "none"
