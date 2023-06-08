@@ -14,5 +14,5 @@ makedocs(
     )
 
 deploydocs(
-    repo = "github.com/xamberl/PlotDFT.jl.git",
+    repo = "github.com/xamberl/PlotDFT.git",
 )
