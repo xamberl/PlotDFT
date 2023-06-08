@@ -24,11 +24,12 @@ dos = import_DOS_VASP("/path/to/files")
 ```
 The relevant information is stored into our `dos` variable, which is a [`PlotDFT.DOSinfo`](@ref) struct. You can see information about our system.
 ```
-PlotDFT.DOSinfo: Al₃Sc
+DOSinfo: Al₃Sc
  Atom type 1: Sc
+ Projected DOS is l-decomposed: (1) s, (2) p, (3) d
  Atom type 2: Al
  Projected DOS is l-decomposed: (1) s, (2) p, (3) d
- Fermi energy: 7.2264, α+β: -14.522
+ Fermi energy: 7.2264, α+β: -14.5222
 ```
 Here, we see the chemical formula of the system, the order of the atoms as listed in the POSCAR, information about the projected DOS (if included), and the Fermi energy.
 
@@ -51,13 +52,14 @@ Now, I've specified our energy axis to be plotted in absolute units (as opposed 
 # Plotting the projected density of states
 Let's plot the projected density of states corresponding to the Sc 3d bands. Again, we can look at `dos` to see what type of information is available.
 ```
-PlotDFT.DOSinfo: Al₃Sc
+DOSinfo: Al₃Sc
  Atom type 1: Sc
+ Projected DOS is l-decomposed: (1) s, (2) p, (3) d
  Atom type 2: Al
  Projected DOS is l-decomposed: (1) s, (2) p, (3) d
- Fermi energy: 7.2264, α+β: -14.522
+ Fermi energy: 7.2264, α+β: -14.5222
 ```
-The relevant information corresponds to *Sc, atom type 1*. Our DOSCAR holds l-decomposed projected DOS information, and the *d-bands correspond to the number 3*. We can now use [`plot_pDOS`](@ref) with our total density of states plot.
+The relevant information corresponds to *Sc, atom type 1*. Our DOSCAR holds l-decomposed projected DOS information, and the options *s*, *p*, and *d* are available. We can now use [`plot_pDOS`](@ref) with our total density of states plot.
 ```julia
 p1 = PlotDFT.plot_pDOS(p1, dos, atom=1, pdos="d", color="#FF0000")
 ```

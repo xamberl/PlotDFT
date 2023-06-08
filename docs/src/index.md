@@ -7,12 +7,12 @@ Plots can be exported in any of the formats allowed by PlotlyJS for post-process
 See examples for more detail.
 
 # Dependencies
-* [Electrum](https://github.com/brainandforce/Electrum.jl) for reading DFT data
+* [Electrum.jl](https://github.com/brainandforce/Electrum.jl) for reading DFT data
 * PlotlyJS for plotting
 
 # Current features
-* Plot total DOS
-* Plot projected DOS (l- and lm- decomposed)
+* Plot the total DOS and projected DOS (l- and lm- decomposed) from VASP's outputs
+* Plot DOS from files generated from [LOBSTER](http://cohp.de)
 
 # Planned features
 * Customize legend
