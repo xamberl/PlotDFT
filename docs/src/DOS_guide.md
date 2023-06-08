@@ -59,9 +59,9 @@ PlotDFT.DOSinfo: Al₃Sc
 ```
 The relevant information corresponds to *Sc, atom type 1*. Our DOSCAR holds l-decomposed projected DOS information, and the *d-bands correspond to the number 3*. We can now use [`plot_pDOS`](@ref) with our total density of states plot.
 ```julia
-p1 = PlotDFT.plot_pDOS(p1, dos, atom=1, pdos=3, color="#FF0000")
+p1 = PlotDFT.plot_pDOS(p1, dos, atom=1, pdos="d", color="#FF0000")
 ```
-Here, the required arguments are `p1` and `dos`, corresponding to our total density of states plot and information about our system, respectively. Additionally, we need to specify what atom we use with `atom=1` and which pdos to plot with `pdos=3`. The only optional argument here is the color. The default color is black; here, it is a string corresponding to the hexadecimal for red.
+Here, the required arguments are `p1` and `dos`, corresponding to our total density of states plot and information about our system, respectively. Additionally, we need to specify what atom we use with `atom=1` and which pdos to plot with `pdos="d"`. The only optional argument here is the color. The default color is black; here, it is a string corresponding to the hexadecimal for red.
 
 ![Projected DOS distribution of Sc 3d bands in ScAl3](./assets/ScAl3_pdos_1.svg)
 

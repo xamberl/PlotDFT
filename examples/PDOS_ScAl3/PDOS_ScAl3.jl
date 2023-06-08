@@ -17,7 +17,7 @@ dos
 #  Fermi energy: 7.2264, α+β: -14.5222
 
 # Plot the Sc d projected DOS on our TDOS.
-p2 = PlotDFT.plot_pDOS(p1, dos; atom=1, pdos="d", color="#FF0000")
+p2 = PlotDFT.plot_pDOS(p1, dos, atom=1, pdos="d", color="#FF0000")
 
 
 # Adjust plot formatting! Change title, title positioning, color, etc.
