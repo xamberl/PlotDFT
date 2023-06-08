@@ -170,7 +170,7 @@ function plot_pDOS(plot::PlotlyJS.SyncPlot, dosinfo::DOSinfo; atom::Int, pdos::S
             pdos_for_plot = pdos_for_plot + dosinfo.pdos[i].dos[j,:]
         end
     end
-    pdosname = string(dosinfo.pos.atoms[1].atom.name, " ", label)
+    pdosname = string(dosinfo.pos.atoms[unique_atoms[atom]].atom.name, " ", label)
     addtraces!(p.plot, scatter(x = pdos_for_plot, y = dosinfo.tdos.energy.+z, marker_color = color, fill="tozerox", name=pdosname))
     return p
 end
