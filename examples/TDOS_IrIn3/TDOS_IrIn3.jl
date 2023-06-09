@@ -2,14 +2,14 @@
 using PlotDFT
 
 # Import DOS
-dos = PlotDFT.import_DOS_VASP()
+dos = import_DOS_VASP()
 
 # Plot total DOS in absolute units of eV
-p1 = PlotDFT.plot_DOS(dos, eaxis="absolute")
+p1 = plot_DOS(dos, eaxis="absolute")
 
 # Plot total DOS ± 1 eV with xmax = 15 states/eV
 # Relative units of eV (E-Ef)
-p2 = PlotDFT.plot_DOS(dos, emin = -1, emax = +1, xmax = 15)
+p2 = plot_DOS(dos, emin = -1, emax = +1, xmax = 15)
 
 # Adjust plot formatting! Change title, title positioning, add axes labels, color, etc.
 # See https://plotly.com/julia/reference/layout/ for options!
